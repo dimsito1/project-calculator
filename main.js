@@ -3,13 +3,10 @@ const calculator = {
     clearBtn: document.querySelector('.clear'),
     resultDiv: document.querySelector('.result'),
     resultTextNode: document.createElement('div'),
+    infoArray: [],
     isLineActive: false,
     lineAnimInterval: null,
     lineAnimTimeout: null,
-    tempSymbol: null,
-    isSymbolPresent: false,
-    isInEquation: false,
-    number: 0,
     sum: 0,
     allButtons: document.querySelectorAll('button'),
     line: (function() {
@@ -18,55 +15,120 @@ const calculator = {
         return tempDiv;
     })(),
     
-    equation() {
-        this.resultTextNode.textContent = this.sum;
-        console.log(this.sum);
-        this.isSymbolPresent = false;
-        this.isInEquation = false;
-    },
-    
-    addition() {
-        if (!this.isSymbolPresent) {
-            this.tempElement = '+';
-            this.resultTextNode.textContent += this.tempElement;
-            this.isSymbolPresent = true;
+    glueArrayNumbers(array) {
+        console.log("INFO ARRAY BEFORE: " + array);
+        let newArray = [];
+        let number = '';
+        for (let i = 0; i < array.length; i++) {
+            if (!Number(array[i])) {
+                newArray.push(number);
+                newArray.push(array[i]);
+                number = ''
+            }
+            else if (Number(array[i])) {
+                number += array[i];
+            }
         }
+        newArray.push(number);
 
-        this.allButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                if (button.classList.contains('num')) {
-                    this.sum = this.sum + parseInt(this.number);
-                    console.log("first sum: " + this.sum);
-                    this.number = button.innerText;
-                    console.log("sum: " + this.sum);
-                    this.sum = this.sum + parseInt(this.number);
-                    console.log("sum: " + this.sum);
-                    console.log("button number: " + this.number);
+        return newArray;
+    },
+
+    multiplication() {
+        let prevNum = '';
+        let nextNum = '';
+        for (let i = 0; i < this.infoArray.length; i++) {
+            if (this.infoArray[i] == '*') {
+                i != 0 ? prevNum = this.infoArray[i - 1] : prevNum = this.infoArray[0];
+                i != arrLen - 1 ? nextNum = this.infoArray[i + 1] : nextNum = this.infoArray[arrLen - 1];
+                
+            }
+        }
+    },
+
+    evaluate() {
+        //eval logic
+      
+        this.infoArray = this.glueArrayNumbers(this.infoArray);
+
+        console.log("INFO ARRAY: " + this.infoArray);
+        
+        let prevNum = '';
+        let nextNum = '';
+        let arrLen = this.infoArray.length;
+        for (let i = 0; i < arrLen; i++) {
+            //execute multiplication
+            if (this.infoArray[i] == '*')
+            if (isNaN(this.infoArray[i])) {
+
+                i != 0 ? prevNum = this.infoArray[i - 1] : prevNum = this.infoArray[0];
+                i != arrLen - 1 ? nextNum = this.infoArray[i + 1] : nextNum = this.infoArray[arrLen - 1];
+
+                console.log("sum: " + this.sum);
+                console.log("prev: " + prevNum + ", next: " + nextNum);
+
+                switch (this.infoArray[i]) {
+                    case ('×'):
+                        this.sum += parseInt(prevNum) * parseInt(nextNum);
+                        break;
+                    case ('÷'):
+                        this.sum += parseInt(prevNum) / parseInt(nextNum);
+                        break;
+                    case ('+'):
+                        this.sum += parseInt(prevNum) + parseInt(nextNum);
+                        break;
+                    case ('-'):
+                        this.sum += parseInt(prevNum) - parseInt(nextNum);
+                        break;
                 }
-                else {
-                    this.executeOp(button);
+            console.log("final sum: " + this.sum);
+            this.resultTextNode.textContent = this.sum;
+            }
+        }
+    },
+
+    append(symbol) {
+        this.infoArray.push(symbol.toString());
+        this.resultTextNode.textContent = this.infoArray.join('');
+        this.resultDiv.appendChild(this.resultTextNode);
+    },
+
+    initEventListeners() {
+        this.startLineAnimation();
+        
+        this.allButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                
+                this.stopLineAnimation();
+
+                if (button.classList.contains("equals")) {
+                    this.evaluate();
+                    return;
                 }
+                
+                this.append(button.innerText);
+
+                this.resultTextNode.textContent = this.infoArray.join('');
+                this.resultTextNode.classList.add("result-start");
+                this.resultDiv.appendChild(this.resultTextNode);
+
             });
         });
-    },
+        
+        this.deleteBtn.addEventListener('click', () => {
+            console.log('Delete button clicked');
+        });
 
-    subtraction(first, second) {
-        return first - second;
-    },
-    
-    multiplication(first, second) {
-        return first * second;
-    },
-    
-    division(first, second) {
-        return first / second;
+        this.clearBtn.addEventListener('click', () => {
+            console.log('Clear button clicked');
+        });
     },
 
     startLineAnimation() {
         if (this.isLineActive) {
             return;
         }
-
+    
         let showLine = true;
         this.isLineActive = true;
         
@@ -79,78 +141,19 @@ const calculator = {
                     currLine.remove();
                 }, 500);
             }
-
+    
             showLine = !showLine;
         }, 500);
     },
-
+    
     stopLineAnimation() {
         clearInterval(this.lineAnimInterval);
-
+    
         const lines = this.resultDiv.querySelectorAll('.line');
         lines.forEach(line => line.remove());
-
+    
         this.isLineActive = false;
     },
-
-    initEventListeners() {
-        this.startLineAnimation();
-
-        if (!this.isInEquation) {
-            this.allButtons.forEach(button  => {
-                button.addEventListener('click', () => {
-                    this.stopLineAnimation();
-                    
-                    if (button.classList.contains('op')) {
-                        this.executeOp(button);
-                        return;
-                    }
-                    
-                    console.log("SURELY NOT HERE");
-                    this.number = button.innerText;
-                    this.resultTextNode.textContent = this.number;
-                    this.resultTextNode.classList.add('result-start');
-                    this.resultDiv.appendChild(this.resultTextNode);
-                    console.log("result num: " + this.number);
-
-                    this.allButtons.forEach(button => {
-                        button.removeEventListener('click', this.handleButtonClick.bind(this));
-                    });
-
-                    this.isInEquation = true;
-                });
-            });
-        }
-
-        this.deleteBtn.addEventListener('click', () => {
-            console.log('Delete button clicked');
-        });
-
-        this.clearBtn.addEventListener('click', () => {
-            console.log('Clear button clicked');
-        });
-    },
-
-    executeOp(currButton) {
-        console.log("operation");
-        switch(true) {
-            case currButton.classList.contains('add'):
-                console.log("addition");
-                this.addition();
-                break;
-            case currButton.classList.contains('subtract'):
-                this.subtraction();
-                break;
-            case currButton.classList.contains('multiply'):
-                this.multiplication();
-                break;
-            case currButton.classList.contains('divide'):
-                this.division();
-                break;
-            case currButton.classList.contains('equals'):
-                this.equation();
-        }
-    }
 };
 
 calculator.initEventListeners();

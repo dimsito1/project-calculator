@@ -181,12 +181,16 @@ body {
 }
 
 .result-start {
+    width: 320px;
+    display: flex;
+    justify-content: flex-end;
+    overflow: hidden;
     border: solid 2px black;
     font-weight: 1000;
     font-size: 40px;
     position: absolute;
-    top: 50%;
-    left: 87%;
+    top: 43%;
+    left: 4%;
     z-index: 2;
     color: rgba(0, 0, 0, 0.5);
 }
