@@ -27,6 +27,10 @@ const calculator = {
             if (symbolFound && (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷')) {
                 return false;
             }
+            if (this.infoArray[i] === '÷' && (parseFloat(this.infoArray[i + 1]) === 0 || /^0+$/.test(this.infoArray[i + 1]))) {
+                // Check for division by zero or by any sequence interpreted as zero
+                return false;
+            }
             if (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷') {
                 symbolFound = true;
             } else if (!isNaN(this.infoArray[i]) && this.infoArray[i] !== ' ') { // Check if it's a number and not a space.
