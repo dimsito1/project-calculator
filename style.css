@@ -185,16 +185,11 @@ body {
     display: flex;
     justify-content: flex-end;
     overflow: hidden;
-    border: solid 2px black;
     font-weight: 1000;
-    font-size: 40px;
+    font-size: 43px;
     position: absolute;
-    top: 43%;
-    left: 4%;
+    top: 44%;
+    left: 5%;
     z-index: 2;
     color: rgba(0, 0, 0, 0.5);
-}
-
-.result {
-    border: solid 1px black;
 }
