@@ -21,19 +21,19 @@ const calculator = {
         if (this.infoArray[0] === '×' || this.infoArray[0] === '÷') {
             return false;
         }
-
+    
         let symbolFound = false;
         for (let i = 0; i < this.infoArray.length; i++) {
-            if (symbolFound && (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray === '÷')) {
+            if (symbolFound && (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷')) {
                 return false;
             }
-            if (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray === '÷') {
+            if (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷') {
                 symbolFound = true;
-            } else if (!Number(this.infoArray[i])) {
+            } else if (!isNaN(this.infoArray[i]) && this.infoArray[i] !== ' ') { // Check if it's a number and not a space.
                 symbolFound = false;
             }
         }
-
+    
         return true;
     },
 
@@ -138,14 +138,6 @@ const calculator = {
             return;
         }
         this.executeMath();
-        //is still array
-
-        // console.log("FIRST ITEM" , this.infoArray[0]);
-
-        // if (this.infoArray[0] == '×'|| this.infoArray[0] == '÷' ) {
-        //     this.clear();
-        //     return;
-        // }
 
         console.log("Is it array?: ", this.infoArray);
 
@@ -155,17 +147,6 @@ const calculator = {
     },
     
     append(symbol) {
-        // if ((symbol == '+' || symbol == '−' || symbol == '×' || symbol == '÷') && this.isSymbolPresent) {
-        //     this.infoArray.pop();
-        //     this.infoArray.push(symbol.toString());
-        //     this.resultTextNode.textContent = this.infoArray.join('');
-        //     this.resultDiv.appendChild(this.resultTextNode);
-        //     return;
-        // }
-        // if ((symbol == '+' || symbol == '−' || symbol == '×' || symbol == '÷') && !this.isSymbolPresent) {
-        //     this.isSymbolPresent = true;
-        // }
-
         if (symbol == '.' && this.isCommaPresent) {
             return;
         }
