@@ -1,3 +1,4 @@
 # project-calculator
 
-Basic calculator done in JS.
+Interactive basic calculator done in JS. (link: ![Click here!](https://dimsito1.github.io/project-calculator/))
+![calc-image](screenshot-calc.png)
