@@ -17,23 +17,48 @@ const calculator = {
         return tempDiv;
     })(),
     
+    isOperation(symbol) {
+        if (symbol === '×' || symbol === '÷' || symbol === '-' || symbol === '+') {
+            return true;
+        }
+        return false;
+    },
+
+    setCommaBool() {
+        for (let i = 0; i < this.infoArray.length; i++) {
+            if (this.infoArray[i] === '.') {
+                this.isCommaPresent = true;
+            }
+        }
+        this.isCommaPresent = false;
+    },
+
     isEquationGood() {
-        if (this.infoArray[0] === '×' || this.infoArray[0] === '÷') {
+        const arrLen = this.infoArray.length;
+        if (this.infoArray[0] === '×' || this.infoArray[0] === '÷' || this.isOperation(this.infoArray[arrLen - 1])) {
+            alert('Invalid input');
             return false;
         }
     
         let symbolFound = false;
-        for (let i = 0; i < this.infoArray.length; i++) {
-            if (symbolFound && (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷')) {
+        for (let i = 0; i < arrLen; i++) {
+            if (this.infoArray[i] == 'e') {
+                alert('Invalid input');
+                return false;
+            }
+            if (symbolFound && this.isOperation(this.infoArray[i])) {
+                alert('Invalid input');
                 return false;
             }
             if (this.infoArray[i] === '÷' && (parseFloat(this.infoArray[i + 1]) === 0 || /^0+$/.test(this.infoArray[i + 1]))) {
                 // Check for division by zero or by any sequence interpreted as zero
+                alert("You cannot divide by 0");
                 return false;
             }
-            if (this.infoArray[i] === '+' || this.infoArray[i] === '−' || this.infoArray[i] === '×' || this.infoArray[i] === '÷') {
+            if (this.isOperation(this.infoArray[i])) {
                 symbolFound = true;
-            } else if (!isNaN(this.infoArray[i]) && this.infoArray[i] !== ' ') { // Check if it's a number and not a space.
+            } 
+            else if (!isNaN(this.infoArray[i])) { // Check if it's a number
                 symbolFound = false;
             }
         }
@@ -48,12 +73,17 @@ const calculator = {
     },
 
     glueArrayNumbers(array) {
+        // console.log("starting glue array: ", array);
         let newArray = [];
         let number = '';
         for (let i = 0; i < array.length; i++) {
-            if (array[i] === '.' || !isNaN(array[i])) {
+            if (array[i] === '-' && (i === 0 || isNaN(array[i - 1]) && array[i - 1] !== '.')) {
                 number += array[i];
-            } else {
+            } 
+            else if (!isNaN(array[i]) || array[i] === '.') {
+                number += array[i];
+            } 
+            else {
                 if (number !== '') {
                     newArray.push(number);
                     number = '';
@@ -64,12 +94,12 @@ const calculator = {
         if (number !== '') {
             newArray.push(number);
         }
-
+    
         return newArray;
     },
 
     unglueArray(array) {
-        console.log("Input to unglueArray:", array);
+        // console.log("Input to unglueArray:", array);
         if (array.length > 1) {
             return array; 
         }
@@ -82,12 +112,11 @@ const calculator = {
     },
 
     executeMath() {
-        console.log("Starting array:", this.infoArray);
-
+        // console.log("Starting math array:", this.infoArray);
         if (this.infoArray.indexOf('×') === -1  
         && this.infoArray.indexOf('÷') === -1
         && this.infoArray.indexOf('+') === -1
-        && this.infoArray.indexOf('−') === -1) {
+        && this.infoArray.indexOf('-') === -1) {
             return this.infoArray;
         }
 
@@ -95,21 +124,17 @@ const calculator = {
         
         for (let i = 0; i < arrLen; i++) {
             if (this.infoArray[i] === '×') {
-                const tempResult = this.infoArray[i - 1] * this.infoArray[i + 1];
-                console.log("Multiplying:", this.infoArray[i - 1], "*", this.infoArray[i + 1], "=", tempResult);
+                const tempResult = parseFloat((this.infoArray[i - 1] * this.infoArray[i + 1]).toFixed(5));
+                // console.log("Multiplying:", this.infoArray[i - 1], "*", this.infoArray[i + 1], "=", tempResult);
                 this.infoArray.splice(i - 1, 3, tempResult);
                 return this.executeMath();
             } 
             else if (this.infoArray[i] === '÷') {
-                const tempResult = this.infoArray[i - 1] / this.infoArray[i + 1];
-                console.log("Dividing:", this.infoArray[i - 1], "/", this.infoArray[i + 1], "=", tempResult);
+                const tempResult = parseFloat((this.infoArray[i - 1] / this.infoArray[i + 1]).toFixed(5));
+                // console.log("Dividing:", this.infoArray[i - 1], "/", this.infoArray[i + 1], "=", tempResult);
                 let resultToInsert = (function() {
                     const newResult = tempResult.toFixed(5);
-                    if (newResult.endsWith('00000') || 
-                    // || newResult.endsWith('0000') 
-                    // || newResult.endsWith('000') 
-                    // || newResult.endsWith('00') || 
-                     newResult.endsWith('0')) {
+                    if (newResult.endsWith('00000') || newResult.endsWith('0')) {
                         return parseFloat(tempResult).toString();
                     } else {
                         return tempResult.toFixed(5);
@@ -119,14 +144,16 @@ const calculator = {
                 return this.executeMath();
             } 
             else if (this.infoArray[i] === '+' && this.infoArray.indexOf('×') === -1 && this.infoArray.indexOf('÷') === -1) {
-                const tempResult = parseFloat(this.infoArray[i - 1]) + parseFloat(this.infoArray[i + 1]);
-                console.log("Adding:", this.infoArray[i - 1], "+", this.infoArray[i + 1], "=", tempResult);
+                let tempResult = parseFloat(this.infoArray[i - 1]) + parseFloat(this.infoArray[i + 1]);
+                tempResult = parseFloat(tempResult.toFixed(5));
+                // console.log("Adding:", this.infoArray[i - 1], "+", this.infoArray[i + 1], "=", tempResult);
                 this.infoArray.splice(i - 1, 3, tempResult);
                 return this.executeMath();
             } 
-            else if (this.infoArray[i] === '−' && this.infoArray.indexOf('×') === -1 && this.infoArray.indexOf('÷') === -1) {
-                const tempResult = parseFloat(this.infoArray[i - 1]) - parseFloat(this.infoArray[i + 1]);
-                console.log("Subtracting:", this.infoArray[i - 1], "-", this.infoArray[i + 1], "=", tempResult);
+            else if (this.infoArray[i] === '-' && this.infoArray.indexOf('×') === -1 && this.infoArray.indexOf('÷') === -1) {
+                let tempResult = parseFloat(this.infoArray[i - 1]) - parseFloat(this.infoArray[i + 1]);
+                tempResult = parseFloat(tempResult.toFixed(5));                
+                // console.log("Subtracting:", this.infoArray[i - 1], "-", this.infoArray[i + 1], "=", tempResult);
                 this.infoArray.splice(i - 1, 3, tempResult);
                 return this.executeMath();
             }
@@ -137,15 +164,11 @@ const calculator = {
         //eval logic
         this.infoArray = this.glueArrayNumbers(this.infoArray);
         if (!this.isEquationGood()) {
-            console.log("ITS FALSE");
             this.clear();
             return;
         }
         this.executeMath();
-
-        console.log("Is it array?: ", this.infoArray);
-
-        console.log("INFO ARRAY: ",  this.infoArray);
+        this.setCommaBool();
 
         this.resultTextNode.textContent = this.infoArray;
     },
@@ -154,11 +177,11 @@ const calculator = {
         if (symbol == '.' && this.isCommaPresent) {
             return;
         }
-        else if (symbol == '.') {
+        else if (symbol == '.' && !this.isCommaPresent) {
             this.isCommaPresent = true;
         }
 
-        else if (this.infoArray[this.infoArray.length - 1] == symbol && (symbol == '+' || symbol == '−' || symbol == '×' || symbol == '÷' )) {
+        else if (this.infoArray[this.infoArray.length - 1] == symbol && this.isOperation(symbol)) {
             return;
         }
 
@@ -172,6 +195,9 @@ const calculator = {
         
         this.allButtons.forEach((button) => {
             button.addEventListener("click", () => {
+                if (button.classList.contains("dot")) {
+                    console.log('IS COMMA PRESENT: ' + this.isCommaPresent);
+                }
                 
                 this.stopLineAnimation();
                 
@@ -179,6 +205,7 @@ const calculator = {
                     this.evaluate();
                     return;
                 }
+
                 
                 if (button.innerText != "Delete" && button.innerText != "Clear") {
                     this.append(button.innerText);
@@ -192,10 +219,10 @@ const calculator = {
         });
         
         this.deleteBtn.addEventListener('click', () => {
-            console.log('Delete button clicked');
+            // console.log('Delete button clicked');
 
             if (!this.infoArray.length) {
-                console.log('Array already empty');
+
                 this.resultTextNode.textContent = '0';
                 return; // Exit early
             }
@@ -206,7 +233,6 @@ const calculator = {
 
             if (this.infoArray.length > 1) {
                 if (this.infoArray[this.infoArray.length - 1] == '.') {
-                    console.log("COMMMAAA is set to false");
                     this.isCommaPresent = false;
                 }
                 this.infoArray.pop();
@@ -214,7 +240,8 @@ const calculator = {
                 console.log('new array: ',  this.infoArray);
             }
             else {
-                console.log('This is null is true');
+                // console.log('This is null is true');
+                this.isCommaPresent = false;
                 this.sum = 0;
                 this.resultTextNode.textContent = '0';
                 this.infoArray = [];
@@ -222,7 +249,8 @@ const calculator = {
         });
         
         this.clearBtn.addEventListener('click', () => {
-            console.log('Clear button clicked');
+            // console.log('Clear button clicked');
+            this.isCommaPresent = false;
             this.sum = 0;
             this.resultTextNode.textContent = '0';
             this.infoArray = [];

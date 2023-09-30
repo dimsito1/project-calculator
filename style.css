@@ -1,5 +1,7 @@
 html, body, .body-wrapper {
     height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 body {
@@ -181,6 +183,7 @@ body {
 }
 
 .result-start {
+    white-space: nowrap;
     width: 320px;
     display: flex;
     justify-content: flex-end;
